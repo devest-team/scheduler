@@ -20,8 +20,7 @@ programmers의 과제 테스트는 코드를 제출하면 자동으로 서버를
 
   ```json
   "scripts": {
-      "start": "node index.js",
-      "test": "node test.js"
+      "start": user.juser.js "test": "node test.js"
     },
   ```
 

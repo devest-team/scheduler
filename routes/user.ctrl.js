@@ -1,41 +1,74 @@
-const app = require('../app');
-const bodyParser = require('body-parser');
-const User = require('..//models/index')
-
-app.use(bodyParser.urlencoded({extended:false}));
-app.use(bodyParser.json());
-
-const index = (req,res) => {
-    res.render('index', { title: 'programmers 과제 테스트 템플릿 - Node.js' });
-};
+const { user } = require('../models');
 
 const login = (req,res) => {
-    const id = req.body.userId || req.query.id;;
+    const userId = req.body.userId || req.query.id;;
     const password = req.body.password || req.query.password;
-    if(!id){
-        console.log("id 받기 실패")
-        return res.status(400).end()
-    }else{
-        if(!password){
-            console.log('password 받기 실패');
-            return res.status(400).end()
-        }else{
-            User.find({
-                where:{
-                    name:id
+    if (!userId) {
+        res.json({
+            result: 'fail',
+            err: '아이디를 입력해주세요'
+        });
+    } else {
+        if (!password) {
+            res.json({
+                result: 'fail',
+                err: '비밀번호를 입력해주세요'
+            });
+        } else {
+            console.log('find one')
+            user.findOne({
+                where: {
+                    userId,
+                    password
+                }
+            }).then(result => {
+                if (result) {
+                    res.cookie('userId', userId);
+                    res.json({
+                        result: 'success'
+                    });
+                } else {
+                    res.json({
+                        result: 'fail',
+                        err: '계정 정보가 일치하지 않습니다.'
+                    });
                 }
             });
-            res.render(User.userId);
         }
     }
 };
 
-const userjoin = (req,res) => {
-    res.render('index',{title:'join text'});
+const logout = (req, res) => {
+    res.clearCookie('userId');
+    res.redirect('/');
+};
+
+const join = (req,res) => {
+    console.log('userjoin 접속 함')
+    var id = req.body.userId || req.query.id;;
+    var password = req.body.password || req.query.password;
+    var engName = req.body.engName || req.query.engName;
+    var name = req.body.name || req.query.name;
+    console.log('param : ' + id + ', ' + password + ', ' + engName + ', ' + name);
+    if(!id || !password || !engName || !name){
+        res.json({
+            result: 'fail',
+            err: '가입 정보를 올바르게 입력해주세요'
+        });
+    } else {
+        user.create({
+            userId:id,
+            password:password,
+            name:name,
+            engName:engName
+        });
+        res.cookie('userId', id);
+        res.json({
+            result: 'success'
+        });
+    }
 };
 
 module.exports = {
-    index,
-    login,
-    userjoin
+    login, logout, join
 };
